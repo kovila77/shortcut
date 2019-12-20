@@ -6,6 +6,7 @@
 
 int main()
 {
+	//hello
 	KEYBDINPUT kbi;
 	kbi.wVk = VK_MEDIA_PLAY_PAUSE; // Provide your own
 	kbi.wScan = 0;
