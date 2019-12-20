@@ -1,22 +1,50 @@
 // ConsoleApplication8.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
 #include <iostream>
 #include <Windows.h>
+//#include <string>
+//#include <map>
+//#include <functional>
 
-bool findArg(int argc, char* argv[], const char* arg) {
-	for (int i = 0; i < argc; i++) {
-		if (!strcmp(argv[i], arg))
-			std::cout << "lol" << std::endl;
-	}
-}
+//#define PLAY_PAUSE "PLAY_PAUSE"
+//#define VOLUME_UP "VOLUME_UP"
 
-int main(int argc, char* argv[])
+//bool findArg(int argc, char* argv[], const char* arg) {
+//	for (int i = 1; i < argc; i++) {
+//		if (!strcmp(argv[i], arg))
+//			return true;
+//	}
+//	return false;
+//}
+//
+//bool choseType(KEYBDINPUT& kbi, DWORD arg) {
+//	kbi.wVk = arg;
+//	return true;
+//}
+
+int main(int argc, const char* argv[])
 {
-	const char* vv = "lol";
-	findArg(argc, argv, vv);
+	if (argc <= 1) return 0;
+	//const char* whatDo = argv[1];
+
 	KEYBDINPUT kbi;
-	kbi.wVk = VK_MEDIA_PLAY_PAUSE; // Provide your own
+	bool allGood = false;
+
+	if (!strcmp(argv[1], "PLAY_PAUSE")) {
+		kbi.wVk = VK_MEDIA_PLAY_PAUSE;
+		allGood = true;
+	}
+	if (!strcmp(argv[1], "VOLUME_UP")) {
+		kbi.wVk = VK_VOLUME_UP;
+		allGood = true;
+	}
+	if (!strcmp(argv[1], "VOLUME_DOWN")) {
+		kbi.wVk = VK_VOLUME_DOWN;
+		allGood = true;
+	}
+
+	if (!allGood) return 0;
+
 	kbi.wScan = 0;
 	kbi.dwFlags = 0;  // See docs for flags (mm keys may need Extended key flag)
 	kbi.time = 0;

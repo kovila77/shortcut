@@ -1,0 +1,1 @@
+Shortcut.exe PLAY_PAUSE
