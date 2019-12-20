@@ -4,9 +4,17 @@
 #include <iostream>
 #include <Windows.h>
 
-int main()
+bool findArg(int argc, char* argv[], const char* arg) {
+	for (int i = 0; i < argc; i++) {
+		if (!strcmp(argv[i], arg))
+			std::cout << "lol" << std::endl;
+	}
+}
+
+int main(int argc, char* argv[])
 {
-	//hello
+	const char* vv = "lol";
+	findArg(argc, argv, vv);
 	KEYBDINPUT kbi;
 	kbi.wVk = VK_MEDIA_PLAY_PAUSE; // Provide your own
 	kbi.wScan = 0;
