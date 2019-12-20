@@ -13,6 +13,7 @@ const TCHAR* szWinClass = _T("Shortcut");
 const TCHAR* szWinNameCross = _T("Shortcut");
 
 LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	//std::cout << message << " " << (char)wParam << std::endl;
 	switch (message) {
 	case WM_HOTKEY: {
 		switch (wParam) {
@@ -32,6 +33,20 @@ LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM 
 		}
 		case VK_VOLUME_DOWN: {
 			kbi.wVk = VK_VOLUME_DOWN;
+			input.type = INPUT_KEYBOARD;
+			input.ki = kbi;
+			SendInput(1, &input, sizeof(INPUT));
+			break;
+		}
+		case VK_MEDIA_NEXT_TRACK: {
+			kbi.wVk = VK_MEDIA_NEXT_TRACK;
+			input.type = INPUT_KEYBOARD;
+			input.ki = kbi;
+			SendInput(1, &input, sizeof(INPUT));
+			break;
+		}
+		case VK_MEDIA_PREV_TRACK: {
+			kbi.wVk = VK_MEDIA_PREV_TRACK;
 			input.type = INPUT_KEYBOARD;
 			input.ki = kbi;
 			SendInput(1, &input, sizeof(INPUT));
@@ -101,9 +116,28 @@ int main(int argc, const char* argv[])
 	}
 
 	bool d = true;
+
 	d = d && RegisterHotKey(hwnd, VK_MEDIA_PLAY_PAUSE, MOD_CONTROL | MOD_ALT, VK_SPACE);
 	d = d && RegisterHotKey(hwnd, VK_VOLUME_UP, MOD_CONTROL | MOD_ALT, VK_OEM_PLUS);
 	d = d && RegisterHotKey(hwnd, VK_VOLUME_DOWN, MOD_CONTROL | MOD_ALT, VK_OEM_MINUS);
+
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_PLAY_PAUSE, MOD_CONTROL | MOD_ALT, VK_MULTIPLY);
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_PLAY_PAUSE, MOD_CONTROL, VK_NUMPAD0);
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_PLAY_PAUSE, MOD_CONTROL, VK_INSERT);
+
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_UP, MOD_CONTROL | MOD_ALT, VK_ADD);
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_DOWN, MOD_CONTROL | MOD_ALT, VK_SUBTRACT);
+
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_UP, MOD_CONTROL | MOD_ALT, VK_UP);
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_UP, MOD_CONTROL | MOD_ALT, VK_NUMPAD8);
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_DOWN, MOD_CONTROL | MOD_ALT, VK_DOWN);
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_DOWN, MOD_CONTROL | MOD_ALT, VK_NUMPAD2);
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_NEXT_TRACK, MOD_CONTROL | MOD_ALT, VK_RIGHT);
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_NEXT_TRACK, MOD_CONTROL | MOD_ALT, VK_NUMPAD6);
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_PREV_TRACK, MOD_CONTROL | MOD_ALT, VK_LEFT);
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_PREV_TRACK, MOD_CONTROL | MOD_ALT, VK_NUMPAD4);
+
+
 	d = d && RegisterHotKey(hwnd, HOTKEY_EXIT, MOD_CONTROL | MOD_ALT | MOD_NOREPEAT, 'Q');
 
 	if (!d) {
@@ -113,6 +147,8 @@ int main(int argc, const char* argv[])
 		UnregisterClass(szWinClass, hThisInstance);
 		return 0;
 	}
+
+	//ShowWindow(hwnd, SW_SHOW);
 
 	while ((bMessageOk = GetMessage(&message, NULL, 0, 0)) != 0) {
 		if (bMessageOk == -1) {
@@ -129,6 +165,8 @@ int main(int argc, const char* argv[])
 	UnregisterHotKey(hwnd, VK_VOLUME_UP);
 	UnregisterHotKey(hwnd, VK_VOLUME_DOWN);
 	UnregisterHotKey(hwnd, HOTKEY_EXIT);
+	UnregisterHotKey(hwnd, VK_MEDIA_NEXT_TRACK);
+	UnregisterHotKey(hwnd, VK_MEDIA_PREV_TRACK);
 	DestroyWindow(hwnd);
 	UnregisterClass(szWinClass, hThisInstance);
 }
