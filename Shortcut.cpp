@@ -1,22 +1,42 @@
 // ConsoleApplication8.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
 #include <iostream>
 #include <Windows.h>
+#include <string>
+#include <map>
+#include <functional>
 
-bool findArg(int argc, char* argv[], const char* arg) {
-	for (int i = 0; i < argc; i++) {
-		if (!strcmp(argv[i], arg))
-			std::cout << "lol" << std::endl;
-	}
+#define PLAY_PAUSE "PLAY_PAUSE"
+
+//bool findArg(int argc, char* argv[], const char* arg) {
+//	for (int i = 1; i < argc; i++) {
+//		if (!strcmp(argv[i], arg))
+//			return true;
+//	}
+//	return false;
+//}
+
+bool choseType(KEYBDINPUT &kbi, DWORD arg) {
+	kbi.wVk = arg;
+	return true;
 }
 
 int main(int argc, char* argv[])
 {
-	const char* vv = "lol";
-	findArg(argc, argv, vv);
+	//if (argc <= 1) return 0;
+	//std::string whatDo = argv[1];
+
 	KEYBDINPUT kbi;
-	kbi.wVk = VK_MEDIA_PLAY_PAUSE; // Provide your own
+
+	kbi.wVk = VK_VOLUME_MUTE;
+
+	std::map <std::string, std::function < bool(DWORD arg)>> data;
+	data.insert(std::pair<std::string, std::function < bool(DWORD arg)>>(PLAY_PAUSE, []() { choseType(kbi)}));
+	data[PLAY_PAUSE](kbi, VK_MEDIA_PLAY_PAUSE);
+
+	//kbi.wVk = VK_MEDIA_PLAY_PAUSE; // Provide your own
+
+
 	kbi.wScan = 0;
 	kbi.dwFlags = 0;  // See docs for flags (mm keys may need Extended key flag)
 	kbi.time = 0;
@@ -27,9 +47,9 @@ int main(int argc, char* argv[])
 	input.ki = kbi;
 
 	SendInput(1, &input, sizeof(INPUT));
-	kbi.dwFlags = KEYEVENTF_KEYUP;
+	//kbi.dwFlags = KEYEVENTF_KEYUP;
 
-	SendInput(1, &input, sizeof(INPUT));
+	//SendInput(1, &input, sizeof(INPUT));
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
