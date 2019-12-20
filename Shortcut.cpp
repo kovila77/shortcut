@@ -2,71 +2,133 @@
 //
 #include <iostream>
 #include <Windows.h>
-//#include <string>
-//#include <map>
-//#include <functional>
+#include <tchar.h>
 
-//#define PLAY_PAUSE "PLAY_PAUSE"
-//#define VOLUME_UP "VOLUME_UP"
+#define HOTKEY_EXIT 5555
 
-//bool findArg(int argc, char* argv[], const char* arg) {
-//	for (int i = 1; i < argc; i++) {
-//		if (!strcmp(argv[i], arg))
-//			return true;
-//	}
-//	return false;
-//}
-//
-//bool choseType(KEYBDINPUT& kbi, DWORD arg) {
-//	kbi.wVk = arg;
-//	return true;
-//}
+KEYBDINPUT kbi;
+INPUT input;
+
+const TCHAR* szWinClass = _T("Shortcut");
+const TCHAR* szWinNameCross = _T("Shortcut");
+
+LRESULT CALLBACK WindowProcedure(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	switch (message) {
+	case WM_HOTKEY: {
+		switch (wParam) {
+		case VK_MEDIA_PLAY_PAUSE: {
+			kbi.wVk = VK_MEDIA_PLAY_PAUSE;
+			input.type = INPUT_KEYBOARD;
+			input.ki = kbi;
+			SendInput(1, &input, sizeof(INPUT));
+			break;
+		}
+		case VK_VOLUME_UP: {
+			kbi.wVk = VK_VOLUME_UP;
+			input.type = INPUT_KEYBOARD;
+			input.ki = kbi;
+			SendInput(1, &input, sizeof(INPUT));
+			break;
+		}
+		case VK_VOLUME_DOWN: {
+			kbi.wVk = VK_VOLUME_DOWN;
+			input.type = INPUT_KEYBOARD;
+			input.ki = kbi;
+			SendInput(1, &input, sizeof(INPUT));
+			break;
+		}
+		case HOTKEY_EXIT:
+		{
+			PostMessageW(hwnd, WM_QUIT, 0, 0);
+			break;
+		}
+		}
+		break;
+	}
+	}
+	return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
 
 int main(int argc, const char* argv[])
 {
-	if (argc <= 1) return 0;
-	//const char* whatDo = argv[1];
-
-	KEYBDINPUT kbi;
-	bool allGood = false;
-
-	if (!strcmp(argv[1], "PLAY_PAUSE")) {
-		kbi.wVk = VK_MEDIA_PLAY_PAUSE;
-		allGood = true;
-	}
-	if (!strcmp(argv[1], "VOLUME_UP")) {
-		kbi.wVk = VK_VOLUME_UP;
-		allGood = true;
-	}
-	if (!strcmp(argv[1], "VOLUME_DOWN")) {
-		kbi.wVk = VK_VOLUME_DOWN;
-		allGood = true;
-	}
-
-	if (!allGood) return 0;
+	ShowWindow(GetConsoleWindow(), SW_HIDE);
 
 	kbi.wScan = 0;
-	kbi.dwFlags = 0;  // See docs for flags (mm keys may need Extended key flag)
+	kbi.dwFlags = 0;
 	kbi.time = 0;
 	kbi.dwExtraInfo = (ULONG_PTR)GetMessageExtraInfo();
 
-	INPUT input;
 	input.type = INPUT_KEYBOARD;
 	input.ki = kbi;
 
-	SendInput(1, &input, sizeof(INPUT));
-	kbi.dwFlags = KEYEVENTF_KEYUP;
+	BOOL bMessageOk;
+	MSG message;
+	WNDCLASSEX wincl = { 0 };
+	HINSTANCE hThisInstance = GetModuleHandle(NULL);
 
-	SendInput(1, &input, sizeof(INPUT));
+	wincl.lpszClassName = szWinClass;
+	wincl.hInstance = hThisInstance;
+	wincl.lpfnWndProc = WindowProcedure;
+	wincl.cbSize = sizeof(WNDCLASSEX);
+
+	if (!RegisterClassEx(&wincl)) {
+		ShowWindow(GetConsoleWindow(), SW_SHOW);
+		std::cout << "cant registerClass" << std::endl;
+		return 0;
+	}
+
+	HWND hwnd = CreateWindowEx(
+		NULL,
+		szWinClass,          /* Classname */
+		szWinNameCross,       /* Title Text */
+		WS_OVERLAPPEDWINDOW, /* default window */
+		CW_USEDEFAULT,       /* Windows decides the position */
+		CW_USEDEFAULT,       /* where the window ends up on the screen */
+		100,                 /* The programs width */
+		100,                 /* and height in pixels */
+		HWND_DESKTOP,        /* The window is a child-window to desktop */
+		NULL,                /* No menu */
+		hThisInstance,       /* Program Instance handler */
+		NULL                 /* No Window Creation data */
+	);
+
+	if (hwnd == NULL) {
+		ShowWindow(GetConsoleWindow(), SW_SHOW);
+		std::cout << "hwnd cant create" << std::endl;
+		UnregisterClass(szWinClass, hThisInstance);
+		return 0;
+	}
+
+	bool d = true;
+	d = d && RegisterHotKey(hwnd, VK_MEDIA_PLAY_PAUSE, MOD_CONTROL | MOD_ALT, VK_SPACE);
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_UP, MOD_CONTROL | MOD_ALT, VK_OEM_PLUS);
+	d = d && RegisterHotKey(hwnd, VK_VOLUME_DOWN, MOD_CONTROL | MOD_ALT, VK_OEM_MINUS);
+	d = d && RegisterHotKey(hwnd, HOTKEY_EXIT, MOD_CONTROL | MOD_ALT | MOD_NOREPEAT, 'Q');
+
+	if (!d) {
+		ShowWindow(GetConsoleWindow(), SW_SHOW);
+		std::cout << "cant RegisterHotKey" << std::endl;
+		DestroyWindow(hwnd);
+		UnregisterClass(szWinClass, hThisInstance);
+		return 0;
+	}
+
+	while ((bMessageOk = GetMessage(&message, NULL, 0, 0)) != 0) {
+		if (bMessageOk == -1) {
+			ShowWindow(GetConsoleWindow(), SW_SHOW);
+			puts("Suddenly, GetMessage failed! You can call GetLastError() to see what happend");
+			break;
+		}
+
+		TranslateMessage(&message);
+		DispatchMessage(&message);
+	}
+
+	UnregisterHotKey(hwnd, VK_MEDIA_PLAY_PAUSE);
+	UnregisterHotKey(hwnd, VK_VOLUME_UP);
+	UnregisterHotKey(hwnd, VK_VOLUME_DOWN);
+	UnregisterHotKey(hwnd, HOTKEY_EXIT);
+	DestroyWindow(hwnd);
+	UnregisterClass(szWinClass, hThisInstance);
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
