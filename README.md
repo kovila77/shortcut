@@ -6,9 +6,20 @@ ctrl + alt + Q     -     exit
 
 ctrl + alt + SPACE -     play/pause
 
+ctrl + NUM0        -     play/pause
+
+ctrl + INSERT      -     play/pause
+
+ctrl + alt + *     -     play/pause
+
 ctrl + alt + +     -     volume up
+
+ctrl + alt + ↑     -     volume up
 
 ctrl + alt + -     -     volume down
 
+ctrl + alt + ↓     -     volume down
 
-// + and - work bad. You need push near "0"
+ctrl + alt + ->    -     next track
+
+ctrl + alt + <-    -     prev track
