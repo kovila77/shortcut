@@ -90,6 +90,7 @@ int main(int argc, const char* argv[])
 	if (!RegisterClassEx(&wincl)) {
 		ShowWindow(GetConsoleWindow(), SW_SHOW);
 		std::cout << "cant registerClass" << std::endl;
+		system("PAUSE");
 		return 0;
 	}
 
@@ -111,6 +112,7 @@ int main(int argc, const char* argv[])
 	if (hwnd == NULL) {
 		ShowWindow(GetConsoleWindow(), SW_SHOW);
 		std::cout << "hwnd cant create" << std::endl;
+		system("PAUSE");
 		UnregisterClass(szWinClass, hThisInstance);
 		return 0;
 	}
@@ -143,6 +145,7 @@ int main(int argc, const char* argv[])
 	if (!d) {
 		ShowWindow(GetConsoleWindow(), SW_SHOW);
 		std::cout << "cant RegisterHotKey" << std::endl;
+		system("PAUSE");
 		DestroyWindow(hwnd);
 		UnregisterClass(szWinClass, hThisInstance);
 		return 0;
